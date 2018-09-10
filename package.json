@@ -4,6 +4,7 @@
   "description": "Express router-level middleware for delivering simple test images.",
   "main": "index.js",
   "scripts": {
+    "dev": "nodejs dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,8 +23,8 @@
   },
   "homepage": "https://github.com/matej-marcisovsky/express-image-placeholder#readme",
   "dependencies": {
-    "canvas": "^2.0.0-alpha.12",
-    "color": "^3.0.0",
+    "canvas": "2.0.0-alpha.12",
+    "color": "3.0.0",
     "express": "^4.16.3"
   }
 }
