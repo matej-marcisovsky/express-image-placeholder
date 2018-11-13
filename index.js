@@ -7,27 +7,31 @@ const Express = require('express');
 /**
  * Private modules.
  */
-const ColorPalette = require('./lib/ColorPalette');
+const ColorPreset = require('./lib/ColorPreset');
 const ImageFormat = require('./lib/ImageFormat');
 const Utils = require('./lib/Utils');
 
-const CROSS = '\u{02A2F}';
-const DEFAULT_COLOR = 'blue';
+const CROSS_CHARACTER = '\u{02A2F}';
+const FONT_SIZE = 18;
 const LINE_WIDTH = 2;
+const DOUBLE_LINE_WIDTH = LINE_WIDTH * 2;
 
 const router = Express.Router();
 
 router.get('/:width(\\d+)x:height(\\d+)', (req, res, next) => {
-	let { height, width } = req.params;
-	height = Number(height);
-	width = Number(width);
+	const { height, width } = Utils.parseUrlParams(req.params);
 	if (!Number.isInteger(height) || !Number.isInteger(width)) {
 		throw new Error(`Width and height must be integers.`);
 	}
 
-	req.query.crossed = Utils.QueryParamToBoolean(req.query.crossed);
+	const {
+		border = false,
+		color = 'GRAY',
+		cross = false,
+		format = 'png',
+		label = `${width}${CROSS_CHARACTER}${height}`
+	} = Utils.parseUrlParams(req.query);
 
-	const { format = ImageFormat.PNG } = req.query;
 	let canvas = null;
 	if (format === ImageFormat.SVG || format === ImageFormat.PDF) {
 		canvas = createCanvas(width, height, format);
@@ -36,40 +40,56 @@ router.get('/:width(\\d+)x:height(\\d+)', (req, res, next) => {
 	}
 
 	{
-		const {
-			color = DEFAULT_COLOR,
-			crossed = false,
-			label = `${width}${CROSS}${height}`
-		} = req.query;
-		const colorPalette = new ColorPalette(color);
+		const colorPalette = ColorPreset[color.toUpperCase()];
+		if (!colorPalette) {
+			throw new Error(`Color palette '${color}' not found.`);
+		}
+
 		const ctx = canvas.getContext('2d');
 
-		ctx.fillStyle = colorPalette.dark;
-		ctx.fillRect(0, 0, width, height);
+		if (border) {
+			ctx.fillStyle = colorPalette.dark;
+			ctx.fillRect(0, 0, width, height);
 
-		ctx.fillStyle = colorPalette.light;
-		ctx.fillRect(LINE_WIDTH, LINE_WIDTH, width - 2 * LINE_WIDTH, height - 2 * LINE_WIDTH);
+			ctx.fillStyle = colorPalette.light;
+			ctx.fillRect(LINE_WIDTH, LINE_WIDTH, width - DOUBLE_LINE_WIDTH, height - DOUBLE_LINE_WIDTH);
+		} else {
+			ctx.fillStyle = colorPalette.light;
+			ctx.fillRect(0, 0, width, height);
+		}
 
-		if (crossed) {
-			ctx.strokeStyle = colorPalette.mild;
+		if (cross) {
+			ctx.strokeStyle = colorPalette.dark;
 			ctx.lineWidth = 1;
+
 			ctx.beginPath();
-			ctx.moveTo(0 - LINE_WIDTH, 0);
+			ctx.moveTo(-LINE_WIDTH, 0);
 			ctx.lineTo(width + LINE_WIDTH, height);
 			ctx.closePath();
 			ctx.stroke();
+
 			ctx.beginPath();
 			ctx.moveTo(width + LINE_WIDTH, 0);
-			ctx.lineTo(0 - LINE_WIDTH, height);
+			ctx.lineTo(-LINE_WIDTH, height);
 			ctx.closePath();
 			ctx.stroke();
 		}
 
-		ctx.fillStyle = colorPalette.dark;
-		ctx.font = 'bold 18px Arial, Helvetica, sans-serif';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		ctx.fillText(label, width / 2, height / 2);
+		if (label) {
+			ctx.fillStyle = colorPalette.light;
+			ctx.fillRect(
+				LINE_WIDTH,
+				(height - FONT_SIZE) / 2 - LINE_WIDTH,
+				width - DOUBLE_LINE_WIDTH,
+				FONT_SIZE + DOUBLE_LINE_WIDTH
+			);
+
+			ctx.fillStyle = colorPalette.dark;
+			ctx.font = `bold ${FONT_SIZE}px Arial, Helvetica, sans-serif`;
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(label, width / 2, height / 2);
+		}
 	}
 
 	switch(format) {
