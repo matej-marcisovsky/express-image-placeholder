@@ -1,6 +1,6 @@
 # express-image-placeholder
 
-Express middleware for delivering simple test images. Only dependencies are `canvas` and `express`.
+Express middleware for delivering simple test images. Only dependencies are `canvas` and `http-errors`.
 
 ## Usage
 
