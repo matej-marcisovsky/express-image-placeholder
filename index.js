@@ -2,7 +2,7 @@
  * NPM modules.
  */
 const { createCanvas } = require('canvas');
-const Express = require('express');
+const HttpError = require('http-errors');
 
 /**
  * Private modules.
@@ -16,12 +16,10 @@ const FONT_SIZE = 18;
 const LINE_WIDTH = 2;
 const DOUBLE_LINE_WIDTH = LINE_WIDTH * 2;
 
-const router = Express.Router();
-
-router.get('/:width(\\d+)x:height(\\d+)', (req, res, next) => {
+module.exports = (req, res, next) => {
 	const { height, width } = Utils.parseUrlParams(req.params);
 	if (!Number.isInteger(height) || !Number.isInteger(width)) {
-		throw new Error(`Width and height must be integers.`);
+		return next(new HttpError.BadRequest());
 	}
 
 	const {
@@ -42,7 +40,7 @@ router.get('/:width(\\d+)x:height(\\d+)', (req, res, next) => {
 	{
 		const colorPalette = ColorPreset[color.toUpperCase()];
 		if (!colorPalette) {
-			throw new Error(`Color palette '${color}' not found.`);
+			return next(new HttpError.BadRequest());
 		}
 
 		const ctx = canvas.getContext('2d');
@@ -116,8 +114,6 @@ router.get('/:width(\\d+)x:height(\\d+)', (req, res, next) => {
 
 			return res.send(canvas.toBuffer());
 		default:
-			throw new Error(`Unknown image format provided.`);
+			return next(new HttpError.BadRequest());
 	}
-});
-
-module.exports = router;
+};

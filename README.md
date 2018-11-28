@@ -1,10 +1,10 @@
 # express-image-placeholder
 
-Express router-level middleware for delivering simple test images. Only dependencies are `canvas` and `express`.
+Express middleware for delivering simple test images. Only dependencies are `canvas` and `express`.
 
 ## Usage
 
-Only required attributes are `height` and `width`. The ayre part of the route.
+Only required attributes are `height` and `width`. The are part of the route.
 
 `<your path>/:width(\d+)x:height(\d+)`
 
@@ -21,7 +21,7 @@ Only required attributes are `height` and `width`. The ayre part of the route.
 ```javascript
 const ImagePlaceholder = require('express-image-placeholder');
 
-app.use('/image/', ImagePlaceholder);
+app.use('/image/:width(\\d+)x:height(\\d+)', ImagePlaceholder);
 ```
 
 ## Samples

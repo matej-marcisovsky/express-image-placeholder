@@ -12,6 +12,6 @@ const PORT = 3000;
 
 const app = Express();
 
-app.use('/image/', ImagePlaceholder);
+app.use('/:width(\\d+)x:height(\\d+)', ImagePlaceholder);
 
 app.listen(PORT, () => console.log(`Dev server running on port ${PORT}!`))
