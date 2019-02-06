@@ -2,19 +2,21 @@
  * NPM modules.
  */
 const { createCanvas } = require('canvas');
+const Color = require('color');
 const HttpError = require('http-errors');
 
 /**
  * Private modules.
  */
-const ColorPreset = require('./lib/ColorPreset');
 const ImageFormat = require('./lib/ImageFormat');
 const Utils = require('./lib/Utils');
 
+const BORDER_WIDTH = 2;
 const CROSS_CHARACTER = '\u{02A2F}';
+const DARK_RATIO = 0.5;
+const DOUBLE_BORDER_WIDTH = BORDER_WIDTH * 2;
 const FONT_SIZE = 18;
-const LINE_WIDTH = 2;
-const DOUBLE_LINE_WIDTH = LINE_WIDTH * 2;
+const LABEL_BACKGROUND_OFFSET = 8;
 
 module.exports = (req, res, next) => {
 	const { height, width } = Utils.parseUrlParams(req.params);
@@ -24,7 +26,7 @@ module.exports = (req, res, next) => {
 
 	const {
 		border = false,
-		color = 'GRAY',
+		color = '#9E9E9E',
 		cross = false,
 		format = 'png',
 		label = `${width}${CROSS_CHARACTER}${height}`
@@ -38,51 +40,54 @@ module.exports = (req, res, next) => {
 	}
 
 	{
-		const colorPalette = ColorPreset[color.toUpperCase()];
-		if (!colorPalette) {
-			return next(new HttpError.BadRequest());
+		let primaryColor = null, secondaryColor = null;
+		try {
+			primaryColor = Color(color).hex();
+			secondaryColor = Color(color).darken(DARK_RATIO).hex();
+		} catch (error) {
+			return next(error);
 		}
 
 		const ctx = canvas.getContext('2d');
 
 		if (border) {
-			ctx.fillStyle = colorPalette.dark;
+			ctx.fillStyle = secondaryColor;
 			ctx.fillRect(0, 0, width, height);
 
-			ctx.fillStyle = colorPalette.light;
-			ctx.fillRect(LINE_WIDTH, LINE_WIDTH, width - DOUBLE_LINE_WIDTH, height - DOUBLE_LINE_WIDTH);
+			ctx.fillStyle = primaryColor;
+			ctx.fillRect(BORDER_WIDTH, BORDER_WIDTH, width - DOUBLE_BORDER_WIDTH, height - DOUBLE_BORDER_WIDTH);
 		} else {
-			ctx.fillStyle = colorPalette.light;
+			ctx.fillStyle = primaryColor;
 			ctx.fillRect(0, 0, width, height);
 		}
 
 		if (cross) {
-			ctx.strokeStyle = colorPalette.dark;
+			ctx.strokeStyle = secondaryColor;
 			ctx.lineWidth = 1;
 
 			ctx.beginPath();
-			ctx.moveTo(-LINE_WIDTH, 0);
-			ctx.lineTo(width + LINE_WIDTH, height);
+			ctx.moveTo(0, 0);
+			ctx.lineTo(width, height);
 			ctx.closePath();
 			ctx.stroke();
 
 			ctx.beginPath();
-			ctx.moveTo(width + LINE_WIDTH, 0);
-			ctx.lineTo(-LINE_WIDTH, height);
+			ctx.moveTo(width, 0);
+			ctx.lineTo(0, height);
 			ctx.closePath();
 			ctx.stroke();
 		}
 
 		if (label) {
-			ctx.fillStyle = colorPalette.light;
+			ctx.fillStyle = primaryColor;
 			ctx.fillRect(
-				LINE_WIDTH,
-				(height - FONT_SIZE) / 2 - LINE_WIDTH,
-				width - DOUBLE_LINE_WIDTH,
-				FONT_SIZE + DOUBLE_LINE_WIDTH
+				0 + BORDER_WIDTH,
+				(height - FONT_SIZE) / 2 - LABEL_BACKGROUND_OFFSET,
+				width - DOUBLE_BORDER_WIDTH,
+				FONT_SIZE + 2 * LABEL_BACKGROUND_OFFSET
 			);
 
-			ctx.fillStyle = colorPalette.dark;
+			ctx.fillStyle = secondaryColor;
 			ctx.font = `bold ${FONT_SIZE}px Arial, Helvetica, sans-serif`;
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
