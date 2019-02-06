@@ -1,6 +1,6 @@
 {
   "name": "express-image-placeholder",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Express router-level middleware for delivering simple test images.",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/matej-marcisovsky/express-image-placeholder.git"
   },
   "publishConfig": {
-    "registry": "https://www.npmjs.com"
+    "registry": "https://registry.npmjs.org/"
   },
   "keywords": [
     "express",
