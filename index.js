@@ -11,10 +11,10 @@ const HttpError = require('http-errors');
 const ImageFormat = require('./lib/ImageFormat');
 const Utils = require('./lib/Utils');
 
-const BORDER_WIDTH = 2;
+const LINE_WIDTH = 1;
 const CROSS_CHARACTER = '\u{02A2F}';
 const DARK_RATIO = 0.5;
-const DOUBLE_BORDER_WIDTH = BORDER_WIDTH * 2;
+const DOUBLE_LINE_WIDTH = LINE_WIDTH * 2;
 const FONT_SIZE = 18;
 const LABEL_BACKGROUND_OFFSET = 8;
 
@@ -55,7 +55,7 @@ module.exports = (req, res, next) => {
 			ctx.fillRect(0, 0, width, height);
 
 			ctx.fillStyle = primaryColor;
-			ctx.fillRect(BORDER_WIDTH, BORDER_WIDTH, width - DOUBLE_BORDER_WIDTH, height - DOUBLE_BORDER_WIDTH);
+			ctx.fillRect(LINE_WIDTH, LINE_WIDTH, width - DOUBLE_LINE_WIDTH, height - DOUBLE_LINE_WIDTH);
 		} else {
 			ctx.fillStyle = primaryColor;
 			ctx.fillRect(0, 0, width, height);
@@ -63,7 +63,7 @@ module.exports = (req, res, next) => {
 
 		if (cross) {
 			ctx.strokeStyle = secondaryColor;
-			ctx.lineWidth = 1;
+			ctx.lineWidth = LINE_WIDTH;
 
 			ctx.beginPath();
 			ctx.moveTo(0, 0);
@@ -81,9 +81,9 @@ module.exports = (req, res, next) => {
 		if (label) {
 			ctx.fillStyle = primaryColor;
 			ctx.fillRect(
-				0 + BORDER_WIDTH,
+				0 + LINE_WIDTH,
 				(height - FONT_SIZE) / 2 - LABEL_BACKGROUND_OFFSET,
-				width - DOUBLE_BORDER_WIDTH,
+				width - DOUBLE_LINE_WIDTH,
 				FONT_SIZE + 2 * LABEL_BACKGROUND_OFFSET
 			);
 

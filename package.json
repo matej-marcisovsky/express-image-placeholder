@@ -1,6 +1,6 @@
 {
   "name": "express-image-placeholder",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Express router-level middleware for delivering simple test images.",
   "main": "index.js",
   "scripts": {
