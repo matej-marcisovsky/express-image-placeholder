@@ -26,11 +26,11 @@
   },
   "homepage": "https://github.com/matej-marcisovsky/express-image-placeholder#readme",
   "dependencies": {
-    "canvas": "2.1.x",
+    "canvas": "~2.6.1",
     "color": "3.1.x",
     "http-errors": "1.7.x"
   },
   "devDependencies": {
-    "express": "^4.16.4"
+    "express": "^4.17.1"
   }
 }
